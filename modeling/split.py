@@ -1,10 +1,10 @@
-import numpy as np
 import pandas as pd
-from pyspark.sql import Window
 from pyspark.sql import functions as F
 from pyspark import SQLContext
 from pyspark import SparkContext
 
+
+# TODO add timestamp splitting strategy
 
 class PercentageStrategyEntity:
     """
@@ -89,8 +89,6 @@ class PercentageStrategyRow:
                     data = data.join(sample_data, on="row", how="leftanti")
 
         return splits_dict
-
-# TODO add timestamp splitting strartegy
 
 
 

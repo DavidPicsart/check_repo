@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+
 def pieplot(df, col, fig_h=12, fig_w=12, labels_size=14, legend_size=14, title=None, title_size=22):
     """
     Makes plot of dataframe of "pie" kind
@@ -44,8 +45,24 @@ def jointplot(df, x_col, y_col, fig_h=10, axis_labels_size=14, title=None, title
     g.fig.subplots_adjust(top=0.9)
 
 
-def catplot(df, x_col, y_col, hue=None, col=None, row=None, fig_h=10, aspect=0.8, kind="violin", axis_labels_size=10,
+def catplot(df, x_col, y_col, hue=None, col=None, row=None, kind="violin", fig_h=10, aspect=0.8, axis_labels_size=10,
             title=None, title_size=18):
+    """
+    Draws the graph that shows the relationship between mainly categorical variables
+    :param df:
+    :param x_col: categorical variable
+    :param y_col: numeric variable
+    :param hue: categorical variable
+    :param col: additional categorical variables that will determine the faceting of the grid rowwise
+    :param row: additional categorical variables that will determine the faceting of the grid columnwise
+    :param fig_h:
+    :param aspect:
+    :param kind: violin, boxplot, point, bar, strip
+    :param axis_labels_size:
+    :param title:
+    :param title_size:
+    :return:
+    """
     g = sns.catplot(x=x_col, y=y_col, hue=hue, col=col, row=row, data=df, kind=kind, height=fig_h, aspect=aspect)
     # Set axis labels
     axes = g.axes.flatten()
@@ -58,13 +75,91 @@ def catplot(df, x_col, y_col, hue=None, col=None, row=None, fig_h=10, aspect=0.8
     g.fig.tight_layout()
     # Reduce plot to make room for title
     g.fig.subplots_adjust(top=0.9)
+    plt.show()
 
 
-data = pd.read_csv("/Users/dk/Documents/Events_Next_Week.csv")
+def relplot(df, x_col, y_col, hue=None, col=None, row=None, style=None, size=None, kind="scatter", fig_h=10,
+                aspect=0.8, axis_labels_size=10, title=None, title_size=18):
+    """
+    Draws the graph that shows the relationship between mainly numeric variables
+    :param df:
+    :param x_col: numeric variable
+    :param y_col: numeric variable
+    :param hue: Grouping variable that will produce elements with different colors.
+    Can be either categorical or numeric, although color mapping will behave differently in latter case.
+    :param col: additional categorical variables that will determine the faceting of the grid row wise
+    :param row: additional categorical variables that will determine the faceting of the grid column wise
+    :param style: Grouping variable that will produce elements with different styles.
+    Can have a numeric dtype but will always be treated as categorical.
+    :param size: Grouping variable that will produce elements with different styles.
+    Can have a numeric dtype but will always be treated as categorical.
+    :param kind: scatter, line
+    :param fig_h:
+    :param aspect:
+    :param axis_labels_size:
+    :param title:
+    :param title_size:
+    :return:
+    """
+    g = sns.relplot(data=df, x=x_col, y=y_col, hue=hue, col=col, row=row, style=style, size=size, kind=kind,
+                    height=fig_h, aspect=aspect)
+    # Set axis labels
+    axes = g.axes.flatten()
+    for i in axes:
+        i.set_xlabel(x_col, fontsize=axis_labels_size)
+        i.set_ylabel(y_col, fontsize=axis_labels_size)
+    # Set title
+    g.fig.suptitle(title, fontsize=title_size)
+    # Format nicely.
+    g.fig.tight_layout()
+    # Reduce plot to make room for title
+    g.fig.subplots_adjust(top=0.9)
+    plt.show()
+
+
+def lmplot(df, x_col, y_col, hue=None, col=None, row=None, fig_h=10,
+                aspect=0.8, axis_labels_size=10, title=None, title_size=18):
+    """
+    Draws scatter plot that fit regression lines to show relationship between noisy variables
+    :param df:
+    :param x_col: numeric variable
+    :param y_col: numeric variable
+    :param hue: Grouping variable that will produce elements with different colors.
+    Can be either categorical or numeric, although color mapping will behave differently in latter case.
+    :param col: additional categorical variables that will determine the faceting of the grid row wise
+    :param row: additional categorical variables that will determine the faceting of the grid column wise
+    :param fig_h:
+    :param aspect:
+    :param axis_labels_size:
+    :param title:
+    :param title_size:
+    :return:
+    """
+    g = sns.lmplot(data=df, x=x_col, y=y_col, hue=hue, col=col, row=row, size=size, height=fig_h, aspect=aspect)
+
+    # Set axis labels
+    axes = g.axes.flatten()
+    for i in axes:
+        i.set_xlabel(x_col, fontsize=axis_labels_size)
+        i.set_ylabel(y_col, fontsize=axis_labels_size)
+    # Set title
+    g.fig.suptitle(title, fontsize=title_size)
+    # Format nicely.
+    g.fig.tight_layout()
+    # Reduce plot to make room for title
+    g.fig.subplots_adjust(top=0.9)
+    plt.show()
+
+
+
+data = pd.read_csv("/home/david/Downloads/Events_Next_Week.csv")
 data['next_week_return'] =data['Event_Count_Next_Week'].apply(lambda x: 1 if (x >= 10) else 0)
 data['active_editor'] = data['editor_done'].apply(lambda x: 1 if (x >= 5) else 0)
 data['active_viewer'] = data['photo_view'].apply(lambda x: 1 if (x >= 4) else 0)
 data['magic_lover'] = data['edit_magic_try'].apply(lambda x: 1 if (x >= 6) else 0)
 
-catplot(df=data, x_col="next_week_return", y_col="event_count_first_24h",
-                    kind="violin", fig_h=10, aspect=1, title="Graph")
+
+lmplot(df=data, x_col="event_count_first_24h", y_col="Event_Count_Next_Week", fig_h=10, aspect=1,
+        hue='active_editor', col=None, row=None, axis_labels_size=18,
+        title="title", title_size=28)
+
