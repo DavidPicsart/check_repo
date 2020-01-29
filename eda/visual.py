@@ -1,6 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import holoviews as hv
+from holoviews import opts, dim
 
 
 def pieplot(df, col, fig_h=12, fig_w=12, labels_size=14, legend_size=14, title=None, title_size=22):
@@ -151,15 +153,35 @@ def lmplot(df, x_col, y_col, hue=None, col=None, row=None, fig_h=10,
     plt.show()
 
 
+def chordplot(df, source_col, target_col, fig_size=200):
+    """
+    Draws graph of funnels from one categorical variable (source) to another (target).
+    Requires that category names in variables to be different.
+
+    :param df:
+    :param source_col:
+    :param target_col:
+    :param fig_size:
+    :return:
+    """
+    hv.extension('bokeh')
+    hv.output(size=fig_size)
+    df = df.groupby([source_col, target_col]).size().reset_index(name='value').\
+        rename(columns={source_col: "source", target_col: "target"})
+    chord = hv.Chord(df)
+    chord = chord.opts(
+        opts.Chord(cmap='Category20', edge_cmap='Category20', edge_color=dim('source').str(),
+                   labels='index', node_color=dim('index').str()))
+    return chord
+
+
 
 data = pd.read_csv("/home/david/Downloads/Events_Next_Week.csv")
-data['next_week_return'] =data['Event_Count_Next_Week'].apply(lambda x: 1 if (x >= 10) else 0)
-data['active_editor'] = data['editor_done'].apply(lambda x: 1 if (x >= 5) else 0)
+data['next_week_return'] = data['Event_Count_Next_Week'].apply(lambda x: "active return" if (x >= 20) else ("return" if (x >= 10 and x < 20) else "non return"))
+data['active_editor'] = data['editor_done'].apply(lambda x: "active editor" if (x >= 10) else ("editor" if (x >= 5 and x < 10) else "non editor"))
 data['active_viewer'] = data['photo_view'].apply(lambda x: 1 if (x >= 4) else 0)
 data['magic_lover'] = data['edit_magic_try'].apply(lambda x: 1 if (x >= 6) else 0)
 
 
-lmplot(df=data, x_col="event_count_first_24h", y_col="Event_Count_Next_Week", fig_h=10, aspect=1,
-        hue='active_editor', col=None, row=None, axis_labels_size=18,
-        title="title", title_size=28)
+
 
